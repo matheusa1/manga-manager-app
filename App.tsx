@@ -1,3 +1,4 @@
+import { NativeBaseProvider } from 'native-base'
 import { StatusBar, View } from 'react-native'
 
 import { Routes } from './src/routes'
@@ -6,7 +7,6 @@ export default function App() {
   return (
     <View
       style={{
-        backgroundColor: '#F00',
         flex: 1,
       }}
     >
@@ -15,7 +15,9 @@ export default function App() {
         backgroundColor="transparent"
         translucent
       />
-      <Routes />
+      <NativeBaseProvider>
+        <Routes />
+      </NativeBaseProvider>
     </View>
   )
 }
