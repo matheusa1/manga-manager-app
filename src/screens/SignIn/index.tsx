@@ -1,23 +1,44 @@
+import { zodResolver } from '@hookform/resolvers/zod'
 import { Center, HStack, Pressable, Text, VStack } from 'native-base'
-import React, { useState } from 'react'
+import React from 'react'
 import { Controller, useForm } from 'react-hook-form'
+import { z } from 'zod'
 
 import { Button } from '../../components/Button'
 import { Input } from '../../components/Input'
 import { Title } from '../../components/Title'
 
-export const SignIn = () => {
-  const { control, handleSubmit } = useForm()
+const signInSchema = z.object({
+  email: z
+    .string()
+    .nonempty('O e-mail é obrigatório')
+    .email('Formato de email inválido'),
+  password: z
+    .string()
+    .nonempty('A senha é obrigatória')
+    .min(6, 'A senha deve conter no mínimo 6 caracteres'),
+})
 
-  const [emailErrorMessage, setEmailErrorMessage] = useState('')
-  const [passwordErrorMessage, setPasswordErrorMessage] = useState('')
+type signInInput = z.input<typeof signInSchema>
+type signInOutput = z.output<typeof signInSchema>
+
+export const SignIn = () => {
+  const {
+    control,
+    handleSubmit,
+    register,
+    formState: { errors },
+  } = useForm<signInInput>({
+    resolver: zodResolver(signInSchema),
+  })
 
   const onHandleSingUp = () => {
     console.log('press')
   }
 
-  const onHandleSignIn = (data: any) => {
+  const onHandleSignIn = (data: signInOutput) => {
     console.log(data)
+    console.log(errors)
   }
 
   return (
@@ -34,9 +55,10 @@ export const SignIn = () => {
               render={({ field: { onChange } }) => (
                 <Input
                   label="Email"
-                  errorMessage={emailErrorMessage}
+                  errorMessage={errors.email?.message}
                   onChangeText={onChange}
                   keyboardType="email-address"
+                  // {...register('email')}
                 />
               )}
             />
@@ -46,9 +68,10 @@ export const SignIn = () => {
               render={({ field: { onChange } }) => (
                 <Input
                   label="Senha"
-                  errorMessage={passwordErrorMessage}
+                  errorMessage={errors.password?.message}
                   onChangeText={onChange}
                   password
+                  // {...register('password')}
                 />
               )}
             />
