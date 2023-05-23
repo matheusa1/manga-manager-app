@@ -36,6 +36,7 @@ export const SignIn = () => {
 
   const onHandleSignIn = (data: signInOutput) => {
     console.log(data)
+    navigation.navigate('tabs')
   }
 
   return (

@@ -4,6 +4,9 @@ export declare global {
     interface RootParamList {
       signIn: undefined;
       signUp: undefined;
+      search: undefined;
+      library: undefined;
+      tabs: undefined;
     }
   }
 }
