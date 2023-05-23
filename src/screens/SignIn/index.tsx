@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useNavigation } from '@react-navigation/native'
 import { Center, HStack, Pressable, Text, VStack } from 'native-base'
 import React from 'react'
 import { Controller, useForm } from 'react-hook-form'
@@ -9,10 +10,7 @@ import { Input } from '../../components/Input'
 import { Title } from '../../components/Title'
 
 const signInSchema = z.object({
-  email: z
-    .string()
-    .nonempty('O e-mail é obrigatório')
-    .email('Formato de email inválido'),
+  email: z.string().nonempty('O e-mail é obrigatório').email('Formato de email inválido'),
   password: z
     .string()
     .nonempty('A senha é obrigatória')
@@ -26,19 +24,18 @@ export const SignIn = () => {
   const {
     control,
     handleSubmit,
-    register,
     formState: { errors },
   } = useForm<signInInput>({
     resolver: zodResolver(signInSchema),
   })
+  const navigation = useNavigation()
 
   const onHandleSingUp = () => {
-    console.log('press')
+    navigation.navigate('signUp')
   }
 
   const onHandleSignIn = (data: signInOutput) => {
     console.log(data)
-    console.log(errors)
   }
 
   return (
@@ -58,7 +55,6 @@ export const SignIn = () => {
                   errorMessage={errors.email?.message}
                   onChangeText={onChange}
                   keyboardType="email-address"
-                  // {...register('email')}
                 />
               )}
             />
@@ -71,7 +67,6 @@ export const SignIn = () => {
                   errorMessage={errors.password?.message}
                   onChangeText={onChange}
                   password
-                  // {...register('password')}
                 />
               )}
             />
