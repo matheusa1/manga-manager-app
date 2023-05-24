@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigation } from '@react-navigation/native'
+import axios from 'axios'
 import { Center, Pressable, VStack } from 'native-base'
 import { CaretLeft } from 'phosphor-react-native'
 import React from 'react'
@@ -42,8 +43,26 @@ export const SignUp = () => {
     resolver: zodResolver(signUpSchema),
   })
 
-  const onHandleSingUp = (data: signUpOutput) => {
+  const [emailError, setEmailError] = React.useState('')
+
+  const onHandleSingUp = async (data: signUpOutput) => {
     console.log(data)
+
+    try {
+      const response = await axios.post('http://192.168.1.15:3333/auth/register', {
+        name: data.name,
+        email: data.email,
+        password: data.password,
+      })
+
+      console.log(response.data)
+      setEmailError('')
+    } catch (error: any) {
+      console.log(error.response.status)
+      if (error.response.status === 409) {
+        setEmailError('Email já cadastrado')
+      }
+    }
   }
 
   return (
@@ -75,8 +94,9 @@ export const SignUp = () => {
               render={({ field: { onChange } }) => (
                 <Input
                   label="Email"
-                  errorMessage={errors.email?.message}
+                  errorMessage={errors.email?.message || emailError}
                   onChangeText={onChange}
+                  onChange={() => setEmailError('')}
                   keyboardType="email-address"
                 />
               )}

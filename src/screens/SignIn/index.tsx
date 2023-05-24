@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigation } from '@react-navigation/native'
+import axios from 'axios'
 import { Center, HStack, Pressable, Text, VStack } from 'native-base'
 import React from 'react'
 import { Controller, useForm } from 'react-hook-form'
@@ -30,13 +31,30 @@ export const SignIn = () => {
   })
   const navigation = useNavigation()
 
+  const [passwordError, setPasswordError] = React.useState('')
+  const [emailError, setEmailError] = React.useState('')
+
   const onHandleSingUp = () => {
     navigation.navigate('signUp')
   }
 
-  const onHandleSignIn = (data: signInOutput) => {
-    console.log(data)
-    navigation.navigate('tabs')
+  const onHandleSignIn = async (data: signInOutput) => {
+    try {
+      const response = await axios.post('http://192.168.1.15:3333/auth/login', data)
+      console.log(response.data)
+      setPasswordError('')
+    } catch (error: any) {
+      console.log(error.response.status)
+
+      if (error.response.status === 401) {
+        setPasswordError('Senha inválida')
+      }
+
+      if (error.response.status === 404) {
+        setEmailError('Email não encontrado')
+      }
+    }
+    // navigation.navigate('tabs')
   }
 
   return (
@@ -53,8 +71,9 @@ export const SignIn = () => {
               render={({ field: { onChange } }) => (
                 <Input
                   label="Email"
-                  errorMessage={errors.email?.message}
+                  errorMessage={errors.email?.message || emailError}
                   onChangeText={onChange}
+                  onChange={() => setEmailError('')}
                   keyboardType="email-address"
                 />
               )}
@@ -65,8 +84,9 @@ export const SignIn = () => {
               render={({ field: { onChange } }) => (
                 <Input
                   label="Senha"
-                  errorMessage={errors.password?.message}
+                  errorMessage={errors.password?.message || passwordError}
                   onChangeText={onChange}
+                  onChange={() => setPasswordError('')}
                   password
                 />
               )}
