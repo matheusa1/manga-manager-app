@@ -1,7 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigation } from '@react-navigation/native'
-import axios from 'axios'
-import { Center, Pressable, VStack } from 'native-base'
+import { Center, Pressable, Text, VStack, useToast } from 'native-base'
 import { CaretLeft } from 'phosphor-react-native'
 import React from 'react'
 import { Controller, useForm } from 'react-hook-form'
@@ -10,6 +9,7 @@ import { z } from 'zod'
 import { Button } from '../../components/Button'
 import { Input } from '../../components/Input'
 import { Title } from '../../components/Title'
+import { registerUser } from '../../service/api'
 
 const signUpSchema = z
   .object({
@@ -30,7 +30,7 @@ const signUpSchema = z
   })
 
 type signUpInput = z.input<typeof signUpSchema>
-type signUpOutput = z.output<typeof signUpSchema>
+export type signUpOutput = z.output<typeof signUpSchema>
 
 export const SignUp = () => {
   const navigation = useNavigation()
@@ -42,27 +42,37 @@ export const SignUp = () => {
   } = useForm<signUpInput>({
     resolver: zodResolver(signUpSchema),
   })
+  const toast = useToast()
 
   const [emailError, setEmailError] = React.useState('')
+  const [isLoading, setIsLoading] = React.useState(false)
 
   const onHandleSingUp = async (data: signUpOutput) => {
-    console.log(data)
+    setIsLoading(true)
+    const response = await registerUser(data)
 
-    try {
-      const response = await axios.post('http://192.168.1.15:3333/auth/register', {
-        name: data.name,
-        email: data.email,
-        password: data.password,
-      })
+    if (response.status === 409) {
+      setIsLoading(false)
 
-      console.log(response.data)
+      return setEmailError('Email já cadastrado')
+    } else {
       setEmailError('')
-    } catch (error: any) {
-      console.log(error.response.status)
-      if (error.response.status === 409) {
-        setEmailError('Email já cadastrado')
-      }
     }
+
+    toast.show({
+      placement: 'top',
+      render: () => (
+        <VStack space={4} alignItems="center" bg={'success.500'} p={4} rounded={8}>
+          <Text color="white" fontWeight="bold">
+            Usuário cadastrado com sucesso!
+          </Text>
+        </VStack>
+      ),
+    })
+
+    navigation.navigate('signIn')
+
+    setIsLoading(false)
   }
 
   return (
@@ -126,7 +136,11 @@ export const SignUp = () => {
               )}
             />
           </VStack>
-          <Button title="Criar conta" onPress={handleSubmit(onHandleSingUp)} />
+          <Button
+            isLoading={isLoading}
+            title="Criar conta"
+            onPress={handleSubmit(onHandleSingUp)}
+          />
         </VStack>
       </Center>
     </VStack>

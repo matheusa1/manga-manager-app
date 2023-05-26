@@ -1,6 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigation } from '@react-navigation/native'
-import axios from 'axios'
 import { Center, HStack, Pressable, Text, VStack } from 'native-base'
 import React from 'react'
 import { Controller, useForm } from 'react-hook-form'
@@ -9,6 +8,8 @@ import { z } from 'zod'
 import { Button } from '../../components/Button'
 import { Input } from '../../components/Input'
 import { Title } from '../../components/Title'
+import { useAuth } from '../../context/UserContext'
+import { loginUser } from '../../service/api'
 
 const signInSchema = z.object({
   email: z.string().nonempty('O e-mail é obrigatório').email('Formato de email inválido'),
@@ -19,7 +20,7 @@ const signInSchema = z.object({
 })
 
 type signInInput = z.input<typeof signInSchema>
-type signInOutput = z.output<typeof signInSchema>
+export type signInOutput = z.output<typeof signInSchema>
 
 export const SignIn = () => {
   const {
@@ -30,31 +31,44 @@ export const SignIn = () => {
     resolver: zodResolver(signInSchema),
   })
   const navigation = useNavigation()
+  const { setUserData } = useAuth()
 
   const [passwordError, setPasswordError] = React.useState('')
   const [emailError, setEmailError] = React.useState('')
+  const [isLoading, setIsLoading] = React.useState(false)
 
   const onHandleSingUp = () => {
     navigation.navigate('signUp')
   }
 
   const onHandleSignIn = async (data: signInOutput) => {
-    try {
-      const response = await axios.post('http://192.168.1.15:3333/auth/login', data)
-      console.log(response.data)
-      setPasswordError('')
-    } catch (error: any) {
-      console.log(error.response.status)
+    setIsLoading(true)
+    const response = await loginUser(data)
 
-      if (error.response.status === 401) {
-        setPasswordError('Senha inválida')
-      }
+    if (response.status === 404) {
+      setIsLoading(false)
 
-      if (error.response.status === 404) {
-        setEmailError('Email não encontrado')
-      }
+      return setEmailError('Email não cadastrado')
+    } else {
+      setEmailError('')
     }
-    // navigation.navigate('tabs')
+
+    if (response.status === 401) {
+      setIsLoading(false)
+
+      return setPasswordError('Senha incorreta')
+    } else {
+      setPasswordError('')
+    }
+
+    setUserData({
+      token: response.token,
+      user: response.user,
+    })
+
+    setIsLoading(false)
+
+    navigation.navigate('tabs')
   }
 
   return (
@@ -92,7 +106,7 @@ export const SignIn = () => {
               )}
             />
           </VStack>
-          <Button title="Entrar" onPress={handleSubmit(onHandleSignIn)} />
+          <Button title="Entrar" isLoading={isLoading} onPress={handleSubmit(onHandleSignIn)} />
           <Center>
             <HStack>
               <Text color={'white'}>Não possui conta? </Text>
