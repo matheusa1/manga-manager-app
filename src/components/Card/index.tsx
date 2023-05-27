@@ -1,19 +1,22 @@
 import { Box, HStack, Heading, Image, Pressable, Text, VStack } from 'native-base'
 import React from 'react'
+import { GestureResponderEvent } from 'react-native'
 
 type CardProps = {
   title: string
   image: string
   description: string
+  onPress: (event: GestureResponderEvent) => void
 }
 
-export const Card = ({ image, title, description }: CardProps) => {
+export const Card = ({ image, title, description, onPress }: CardProps) => {
   return (
     <Pressable
       _pressed={{
         opacity: 0.5,
       }}
       w={'full'}
+      onPress={onPress}
     >
       <Box bg={'muted.800'} w={'full'} p={2}>
         <HStack justifyContent={'space-between'} alignItems={'center'}>

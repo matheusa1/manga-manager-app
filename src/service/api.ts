@@ -40,3 +40,19 @@ export const loginUser = async (data: signInOutput) => {
     }
   }
 }
+
+export const getUserMangas = async (token: string, UserId: number) => {
+  try {
+    const response = await api.get(`user/mangas/${UserId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    // console.log(response.data)
+    return response.data.response
+  } catch (error: any) {
+    if (error.response.status === 401) {
+      return { status: 401, error: 'Token inválido' }
+    }
+  }
+}

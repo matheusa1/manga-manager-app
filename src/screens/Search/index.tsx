@@ -1,3 +1,4 @@
+import { useNavigation } from '@react-navigation/native'
 import axios from 'axios'
 import { Box, FlatList, Skeleton, VStack } from 'native-base'
 import React, { useCallback, useEffect, useState } from 'react'
@@ -7,6 +8,8 @@ import { Card } from '../../components/Card'
 import { Input } from '../../components/Input'
 
 export const Search = () => {
+  const navigation = useNavigation()
+
   const [search, setSearch] = useState('')
   const [mangas, setMangas] = useState([])
   const [loading, setLoading] = useState(false)
@@ -38,6 +41,10 @@ export const Search = () => {
     getData(search)
   }
 
+  const onHandleClick = (id: number) => {
+    navigation.navigate('mangaDetail', { mangaId: id })
+  }
+
   useEffect(() => {
     getData()
   }, [])
@@ -59,6 +66,7 @@ export const Search = () => {
                 renderItem={({ item }: any) => (
                   <VStack my={1}>
                     <Card
+                      onPress={() => onHandleClick(item.myanimelist_id)}
                       title={item.title}
                       image={item.picture_url}
                       description={item.description ? item.description : `Rank: ${item.rank}`}

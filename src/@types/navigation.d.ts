@@ -7,6 +7,7 @@ export declare global {
       search: undefined;
       library: undefined;
       tabs: undefined;
+      mangaDetail: { mangaId: number };
     }
   }
 }
