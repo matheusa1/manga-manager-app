@@ -22,21 +22,21 @@ export const TabsRoutes = () => {
         }}
       >
         <Screen
-          name="search"
-          component={Search}
-          options={{
-            tabBarIcon: ({ color, size }) => (
-              <MagnifyingGlass color={color} size={size} weight="regular" />
-            ),
-          }}
-        />
-        <Screen
           name="library"
           component={Library}
           options={{
             tabBarHideOnKeyboard: true,
 
             tabBarIcon: ({ color, size }) => <Books color={color} size={size} weight="regular" />,
+          }}
+        />
+        <Screen
+          name="search"
+          component={Search}
+          options={{
+            tabBarIcon: ({ color, size }) => (
+              <MagnifyingGlass color={color} size={size} weight="regular" />
+            ),
           }}
         />
       </Group>

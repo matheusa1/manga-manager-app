@@ -1,5 +1,6 @@
 import { HStack, ScrollView, Text, VStack } from 'native-base'
 import React, { useCallback, useEffect, useState } from 'react'
+import { RefreshControl } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 import { getMangaResponseType } from '../../@types/GetMangasTypes'
@@ -9,8 +10,9 @@ import { useAuth } from '../../context/UserContext'
 import { getUserMangas } from '../../service/api'
 
 export const Library = () => {
-  const [search, setSearch] = useState('')
+  const [search, setSearch] = useState(``)
   const [mangas, setMangas] = useState<getMangaResponseType[]>([])
+  const [refreshing, setRefreshing] = useState(false)
   const { userData } = useAuth()
 
   const onHandleSearch = () => {
@@ -18,22 +20,21 @@ export const Library = () => {
   }
 
   const onHandleClick = () => {
-    console.log('click')
+    console.log(`click`)
   }
 
   const getData = useCallback(async () => {
     const mangas = await getUserMangas(userData.token, userData.user.id)
     setMangas(mangas)
-    console.log(mangas)
   }, [])
 
   useEffect(() => {
     getData()
-    console.log('a')
+    console.log(`a`)
   }, [getData])
 
   return (
-    <VStack bg={'muted.900'} flex={1}>
+    <VStack bg={`muted.900`} flex={1}>
       <SafeAreaView style={{ flex: 1 }}>
         <VStack px={4}>
           <Input
@@ -42,8 +43,13 @@ export const Library = () => {
             onChangeText={(e) => setSearch(e)}
             onSearch={onHandleSearch}
           />
-          <ScrollView mt={4} mb={16}>
-            <HStack maxW={'full'} w={'full'} flexWrap={'wrap'}>
+          <ScrollView
+            mt={4}
+            mb={16}
+            minH={`full`}
+            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={getData} />}
+          >
+            <HStack maxW={`full`} w={`full`} flexWrap={`wrap`}>
               {mangas.length > 0 ? (
                 mangas.map((manga) => {
                   return (
@@ -56,7 +62,7 @@ export const Library = () => {
                   )
                 })
               ) : (
-                <Text color={'white'}>Carregando</Text>
+                <Text color={`white`}>Carregando</Text>
               )}
             </HStack>
           </ScrollView>

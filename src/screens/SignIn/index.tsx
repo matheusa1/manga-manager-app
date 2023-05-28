@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigation } from '@react-navigation/native'
+import axios from 'axios'
 import { Center, HStack, Pressable, Text, VStack } from 'native-base'
 import React from 'react'
 import { Controller, useForm } from 'react-hook-form'
@@ -12,11 +13,11 @@ import { useAuth } from '../../context/UserContext'
 import { loginUser } from '../../service/api'
 
 const signInSchema = z.object({
-  email: z.string().nonempty('O e-mail é obrigatório').email('Formato de email inválido'),
+  email: z.string().nonempty(`O e-mail é obrigatório`).email(`Formato de email inválido`),
   password: z
     .string()
-    .nonempty('A senha é obrigatória')
-    .min(6, 'A senha deve conter no mínimo 6 caracteres'),
+    .nonempty(`A senha é obrigatória`)
+    .min(6, `A senha deve conter no mínimo 6 caracteres`),
 })
 
 type signInInput = z.input<typeof signInSchema>
@@ -33,12 +34,12 @@ export const SignIn = () => {
   const navigation = useNavigation()
   const { setUserData } = useAuth()
 
-  const [passwordError, setPasswordError] = React.useState('')
-  const [emailError, setEmailError] = React.useState('')
+  const [passwordError, setPasswordError] = React.useState(``)
+  const [emailError, setEmailError] = React.useState(``)
   const [isLoading, setIsLoading] = React.useState(false)
 
   const onHandleSingUp = () => {
-    navigation.navigate('signUp')
+    navigation.navigate(`signUp`)
   }
 
   const onHandleSignIn = async (data: signInOutput) => {
@@ -48,17 +49,17 @@ export const SignIn = () => {
     if (response.status === 404) {
       setIsLoading(false)
 
-      return setEmailError('Email não cadastrado')
+      return setEmailError(`Email não cadastrado`)
     } else {
-      setEmailError('')
+      setEmailError(``)
     }
 
     if (response.status === 401) {
       setIsLoading(false)
 
-      return setPasswordError('Senha incorreta')
+      return setPasswordError(`Senha incorreta`)
     } else {
-      setPasswordError('')
+      setPasswordError(``)
     }
 
     setUserData({
@@ -66,19 +67,21 @@ export const SignIn = () => {
       user: response.user,
     })
 
+    axios.defaults.headers.common[`Authorization`] = `Bearer ${response.token}`
+
     setIsLoading(false)
 
-    navigation.navigate('tabs')
+    navigation.navigate(`tabs`)
   }
 
   return (
-    <VStack bgColor={'muted.900'} flex={1} px={10}>
+    <VStack bgColor={`muted.900`} flex={1} px={10}>
       <Center flex={1}>
-        <VStack width={'full'} space={10}>
+        <VStack width={`full`} space={10}>
           <Center>
             <Title>Entre na sua conta</Title>
           </Center>
-          <VStack width={'full'} space={4}>
+          <VStack width={`full`} space={4}>
             <Controller
               control={control}
               name="email"
@@ -87,7 +90,7 @@ export const SignIn = () => {
                   label="Email"
                   errorMessage={errors.email?.message || emailError}
                   onChangeText={onChange}
-                  onChange={() => setEmailError('')}
+                  onChange={() => setEmailError(``)}
                   keyboardType="email-address"
                 />
               )}
@@ -100,7 +103,7 @@ export const SignIn = () => {
                   label="Senha"
                   errorMessage={errors.password?.message || passwordError}
                   onChangeText={onChange}
-                  onChange={() => setPasswordError('')}
+                  onChange={() => setPasswordError(``)}
                   password
                 />
               )}
@@ -109,9 +112,9 @@ export const SignIn = () => {
           <Button title="Entrar" isLoading={isLoading} onPress={handleSubmit(onHandleSignIn)} />
           <Center>
             <HStack>
-              <Text color={'white'}>Não possui conta? </Text>
+              <Text color={`white`}>Não possui conta? </Text>
               <Pressable onPress={onHandleSingUp}>
-                <Text color={'info.500'}>Cadastre-se aqui!</Text>
+                <Text color={`info.500`}>Cadastre-se aqui!</Text>
               </Pressable>
             </HStack>
           </Center>

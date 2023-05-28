@@ -1,6 +1,6 @@
 import { useNavigation } from '@react-navigation/native'
 import axios from 'axios'
-import { Box, FlatList, Skeleton, VStack } from 'native-base'
+import { Box, Button, FlatList, Skeleton, VStack } from 'native-base'
 import React, { useCallback, useEffect, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
@@ -10,20 +10,19 @@ import { Input } from '../../components/Input'
 export const Search = () => {
   const navigation = useNavigation()
 
-  const [search, setSearch] = useState('')
+  const [search, setSearch] = useState(``)
   const [mangas, setMangas] = useState([])
   const [loading, setLoading] = useState(false)
 
   const getData = useCallback(async (search?: string) => {
-    console.log(search)
     const options = {
-      method: 'GET',
+      method: `GET`,
       url: search
         ? `https://myanimelist.p.rapidapi.com/manga/search/${search}/10`
-        : 'https://myanimelist.p.rapidapi.com/manga/top/manga',
+        : `https://myanimelist.p.rapidapi.com/manga/top/manga`,
       headers: {
-        'X-RapidAPI-Key': '6b9a0e0155mshc50e632587e1934p184af4jsn9db6ad7f95d5',
-        'X-RapidAPI-Host': 'myanimelist.p.rapidapi.com',
+        'X-RapidAPI-Key': `6b9a0e0155mshc50e632587e1934p184af4jsn9db6ad7f95d5`,
+        'X-RapidAPI-Host': `myanimelist.p.rapidapi.com`,
       },
     }
     setLoading(false)
@@ -41,8 +40,8 @@ export const Search = () => {
     getData(search)
   }
 
-  const onHandleClick = (id: number) => {
-    navigation.navigate('mangaDetail', { mangaId: id })
+  const onHandleClick = () => {
+    navigation.navigate(`mangaDetail`)
   }
 
   useEffect(() => {
@@ -50,7 +49,7 @@ export const Search = () => {
   }, [])
 
   return (
-    <VStack bg={'muted.900'} flex={1}>
+    <VStack bg={`muted.900`} flex={1}>
       <SafeAreaView style={{ flex: 1 }}>
         <VStack px={4}>
           <Input
@@ -59,7 +58,8 @@ export const Search = () => {
             onChangeText={(e) => setSearch(e)}
             onSearch={onHandleSearch}
           />
-          <Box w={'full'} mt={8}>
+          <Box w={`full`} mt={8}>
+            <Button onPress={onHandleClick}>MASd</Button>
             {loading ? (
               <FlatList
                 data={mangas}
@@ -76,15 +76,15 @@ export const Search = () => {
               />
             ) : (
               <VStack maxW="400" space={2} overflow="hidden">
-                <Skeleton h="20" rounded={'md'} startColor={'muted.700'} />
-                <Skeleton h="20" rounded={'md'} startColor={'muted.700'} />
-                <Skeleton h="20" rounded={'md'} startColor={'muted.700'} />
-                <Skeleton h="20" rounded={'md'} startColor={'muted.700'} />
-                <Skeleton h="20" rounded={'md'} startColor={'muted.700'} />
-                <Skeleton h="20" rounded={'md'} startColor={'muted.700'} />
-                <Skeleton h="20" rounded={'md'} startColor={'muted.700'} />
-                <Skeleton h="20" rounded={'md'} startColor={'muted.700'} />
-                <Skeleton h="20" rounded={'md'} startColor={'muted.700'} />
+                <Skeleton h="20" rounded={`md`} startColor={`muted.700`} />
+                <Skeleton h="20" rounded={`md`} startColor={`muted.700`} />
+                <Skeleton h="20" rounded={`md`} startColor={`muted.700`} />
+                <Skeleton h="20" rounded={`md`} startColor={`muted.700`} />
+                <Skeleton h="20" rounded={`md`} startColor={`muted.700`} />
+                <Skeleton h="20" rounded={`md`} startColor={`muted.700`} />
+                <Skeleton h="20" rounded={`md`} startColor={`muted.700`} />
+                <Skeleton h="20" rounded={`md`} startColor={`muted.700`} />
+                <Skeleton h="20" rounded={`md`} startColor={`muted.700`} />
               </VStack>
             )}
           </Box>
