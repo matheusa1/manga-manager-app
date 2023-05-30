@@ -1,10 +1,11 @@
 import { useNavigation } from '@react-navigation/native'
-import { Button, HStack, Heading, IconButton, Image, Text, VStack } from 'native-base'
+import { Button, HStack, Heading, IconButton, Image, ScrollView, Text, VStack } from 'native-base'
+import { AlertDialog } from 'native-base'
 import { CaretLeft } from 'phosphor-react-native'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 
 import { useAuth } from '../../context/UserContext'
-import { addMangaToUser, getUserMangas } from '../../service/api'
+import { addMangaToUser, getUserMangas, removeManga } from '../../service/api'
 
 // type MangaDetailProps = {
 //   mangaId: number
@@ -18,6 +19,8 @@ export const MangaDetail = () => {
   const { userData } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
   const [mangaAdded, setMangaAdded] = useState(false)
+  const [isAlertOpen, setIsAlertOpen] = useState(false)
+  const cancelRef = useRef(null)
   const navigation = useNavigation()
 
   const id = 44347
@@ -52,8 +55,12 @@ export const MangaDetail = () => {
     },
   }
 
-  const onHandleRemove = () => {
-    console.log(`remove`)
+  const onHandleRemove = async () => {
+    const response = await removeManga(userData.token, userData.user.id, id)
+    console.log({ response })
+
+    setMangaAdded(false)
+    setIsAlertOpen(false)
   }
 
   const onHandleAdd = async () => {
@@ -67,6 +74,7 @@ export const MangaDetail = () => {
     })
 
     console.log({ Teste: response })
+    setMangaAdded(true)
 
     setIsLoading(false)
   }
@@ -94,7 +102,6 @@ export const MangaDetail = () => {
           h="full"
           source={{ uri: manga.picture_url }}
           alt={`image`}
-          position={`absolute`}
           zIndex={-2}
         />
         <VStack
@@ -106,55 +113,58 @@ export const MangaDetail = () => {
           opacity={50}
         />
       </VStack>
-      <VStack flex={0.7} p={4} space={4}>
-        <HStack alignItems={`center`} justifyContent={`space-between`}>
-          <Heading color={`white`}>{manga.title_ov}</Heading>
-          <Text color={`white`} fontSize={`xs`}>
-            {manga.information.published}
-          </Text>
-        </HStack>
-        <Text color={`white`}>{manga.synopsis}</Text>
-        <HStack alignItems={`center`} space={4}>
-          <Text color={`white`} fontSize={`lg`}>
-            Status:
-          </Text>
-          <Text color={`emerald.400`} fontSize={`xs`}>
-            {manga.information.status}
-          </Text>
-        </HStack>
-        <HStack alignItems={`center`} space={4}>
-          <Text color={`white`} fontSize={`lg`}>
-            Author(s):
-          </Text>
-          <Text color={`emerald.400`} fontSize={`xs`}>
-            {manga.information.authors.map((author) => author.name).join(`, `)}
-          </Text>
-        </HStack>
-        <HStack alignItems={`center`} space={4}>
-          <Text color={`white`} fontSize={`lg`}>
-            Volumes:
-          </Text>
-          <Text color={`emerald.400`} fontSize={`xs`}>
-            {manga.information.volumes}
-          </Text>
-        </HStack>
-        <HStack>
-          <Button
-            w={`full`}
-            py={4}
-            bg={mangaAdded ? `error.500` : `success.500`}
-            _pressed={{
-              bg: `success.800`,
-            }}
-            isLoading={isLoading}
-            onPress={mangaAdded ? onHandleRemove : onHandleAdd}
-          >
-            <Text color={`white`} fontSize={`lg`} fontWeight={`bold`}>
-              {mangaAdded ? `Remover da biblioteca` : `Adicionar a biblioteca`}
+      <ScrollView h={`1`}>
+        <VStack flex={1} p={4} space={4}>
+          <HStack alignItems={`center`} justifyContent={`space-between`}>
+            <Heading color={`white`}>{manga.title_ov}</Heading>
+            <Text color={`white`} fontSize={`xs`}>
+              {manga.information.published}
             </Text>
-          </Button>
-        </HStack>
-      </VStack>
+          </HStack>
+          <Text color={`white`}>{manga.synopsis}</Text>
+          <HStack alignItems={`center`} space={4}>
+            <Text color={`white`} fontSize={`lg`}>
+              Status:
+            </Text>
+            <Text color={`emerald.400`} fontSize={`xs`}>
+              {manga.information.status}
+            </Text>
+          </HStack>
+          <HStack alignItems={`center`} space={4}>
+            <Text color={`white`} fontSize={`lg`}>
+              Author(s):
+            </Text>
+            <Text color={`emerald.400`} fontSize={`xs`}>
+              {manga.information.authors.map((author) => author.name).join(`, `)}
+            </Text>
+          </HStack>
+          <HStack alignItems={`center`} space={4}>
+            <Text color={`white`} fontSize={`lg`}>
+              Volumes:
+            </Text>
+            <Text color={`emerald.400`} fontSize={`xs`}>
+              {manga.information.volumes}
+            </Text>
+          </HStack>
+          <HStack>
+            <Button
+              w={`full`}
+              py={4}
+              bg={mangaAdded ? `error.500` : `success.500`}
+              _pressed={{
+                bg: `success.800`,
+              }}
+              isLoading={isLoading}
+              onPress={mangaAdded ? () => setIsAlertOpen(true) : onHandleAdd}
+            >
+              <Text color={`white`} fontSize={`lg`} fontWeight={`bold`}>
+                {mangaAdded ? `Remover da biblioteca` : `Adicionar a biblioteca`}
+              </Text>
+            </Button>
+          </HStack>
+        </VStack>
+      </ScrollView>
+
       <VStack alignItems={`center`} position={`absolute`} top={10} left={5}>
         <IconButton
           size={`md`}
@@ -162,6 +172,28 @@ export const MangaDetail = () => {
           onPress={navigation.goBack}
         ></IconButton>
       </VStack>
+      <AlertDialog
+        isOpen={isAlertOpen}
+        leastDestructiveRef={cancelRef}
+        onClose={() => setIsAlertOpen(false)}
+      >
+        <AlertDialog.Content>
+          <AlertDialog.Header fontSize="lg" fontWeight="bold">
+            Remover da biblioteca
+          </AlertDialog.Header>
+          <AlertDialog.Body>
+            Tem certeza que deseja remover esse mangá da sua biblioteca?
+          </AlertDialog.Body>
+          <AlertDialog.Footer>
+            <Button ref={cancelRef} onPress={() => setIsAlertOpen(false)}>
+              Cancelar
+            </Button>
+            <Button colorScheme="red" onPress={onHandleRemove} ml={3}>
+              Remover
+            </Button>
+          </AlertDialog.Footer>
+        </AlertDialog.Content>
+      </AlertDialog>
     </VStack>
   )
 }

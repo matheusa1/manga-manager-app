@@ -86,3 +86,16 @@ export const addMangaToUser = async (token: string, UserId: number, manga: addMa
     return error.response.data
   }
 }
+
+export const removeManga = async (token: string, userID: number, MangaID: number) => {
+  try {
+    const response = await api.delete(`manga/${userID}/${MangaID}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    return response.data
+  } catch (error: any) {
+    return error.response.data
+  }
+}

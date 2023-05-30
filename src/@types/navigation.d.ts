@@ -1,3 +1,4 @@
+import { getMangaResponseType } from "./GetMangasTypes"
 
 export declare global {
   namespace ReactNavigation {
@@ -9,6 +10,7 @@ export declare global {
       tabs: undefined;
       // mangaDetail: { mangaId: number };
       mangaDetail: undefined;
+      handleManga: getMangaResponseType
     }
   }
 }

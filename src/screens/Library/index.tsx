@@ -1,4 +1,5 @@
-import { HStack, ScrollView, Text, VStack } from 'native-base'
+import { useNavigation } from '@react-navigation/native'
+import { HStack, Pressable, ScrollView, Text, VStack } from 'native-base'
 import React, { useCallback, useEffect, useState } from 'react'
 import { RefreshControl } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -10,6 +11,7 @@ import { useAuth } from '../../context/UserContext'
 import { getUserMangas } from '../../service/api'
 
 export const Library = () => {
+  const navigation = useNavigation()
   const [search, setSearch] = useState(``)
   const [mangas, setMangas] = useState<getMangaResponseType[]>([])
   const [refreshing, setRefreshing] = useState(false)
@@ -26,11 +28,11 @@ export const Library = () => {
   const getData = useCallback(async () => {
     const mangas = await getUserMangas(userData.token, userData.user.id)
     setMangas(mangas)
+    console.log(mangas)
   }, [])
 
   useEffect(() => {
     getData()
-    console.log(`a`)
   }, [getData])
 
   return (
@@ -53,12 +55,23 @@ export const Library = () => {
               {mangas.length > 0 ? (
                 mangas.map((manga) => {
                   return (
-                    <CardLibrary
+                    <Pressable
+                      onPress={() => navigation.navigate(`handleManga`, manga)}
+                      _pressed={{
+                        opacity: 0.5,
+                      }}
+                      bg={`muted.800`}
+                      w={40}
+                      h={80}
+                      rounded={8}
+                      p={1}
+                      pb={2}
+                      mb={4}
+                      mx={2}
                       key={manga.MangaID}
-                      title={manga.title}
-                      onPress={onHandleClick}
-                      image={manga.image_url}
-                    />
+                    >
+                      <CardLibrary title={manga.title} image={manga.image_url} />
+                    </Pressable>
                   )
                 })
               ) : (

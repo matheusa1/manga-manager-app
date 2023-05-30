@@ -1,6 +1,7 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import React from 'react'
 
+import { HandleManga } from '../screens/HandleManga'
 import { MangaDetail } from '../screens/MangaDetail'
 import { SignIn } from '../screens/SignIn'
 import { SignUp } from '../screens/SignUp'
@@ -14,6 +15,7 @@ export const StackRoute = () => {
       <Screen name="signUp" component={SignUp} />
       <Screen name="tabs" component={TabsRoutes} />
       <Screen name="mangaDetail" component={MangaDetail} />
+      <Screen name="handleManga" component={HandleManga} />
     </Navigator>
   )
 }
