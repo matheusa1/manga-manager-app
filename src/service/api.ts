@@ -99,3 +99,51 @@ export const removeManga = async (token: string, userID: number, MangaID: number
     return error.response.data
   }
 }
+
+export const updateMangaQuantity = async (
+  token: string,
+  userID: number,
+  MangaID: number,
+  quantity: number,
+) => {
+  try {
+    const response = await api.put(
+      `manga/volumes/${userID}`,
+      { volumes: quantity, MangaID: MangaID },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    )
+    return response.data
+  } catch (error: any) {
+    return error.response.data
+  }
+}
+
+export const updateMangaVolumesOwned = async (
+  token: string,
+  userID: number,
+  MangaID: number,
+  volumesOwned: number[],
+) => {
+  try {
+    const response = await api.put(
+      `manga/volumes-owned/${userID}`,
+      {
+        MangaID,
+        volumesOwned,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    )
+
+    return response.data
+  } catch (error: any) {
+    return error.response.data
+  }
+}

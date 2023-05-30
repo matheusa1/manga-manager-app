@@ -13,20 +13,20 @@ import { registerUser } from '../../service/api'
 
 const signUpSchema = z
   .object({
-    name: z.string().nonempty('O nome é obrigatório'),
-    email: z.string().nonempty('O e-mail é obrigatório').email('Formato de email inválido'),
+    name: z.string().nonempty(`O nome é obrigatório`),
+    email: z.string().nonempty(`O e-mail é obrigatório`).email(`Formato de email inválido`),
     password: z
       .string()
-      .nonempty('A senha é obrigatória')
-      .min(6, 'A senha deve conter no mínimo 6 caracteres'),
+      .nonempty(`A senha é obrigatória`)
+      .min(6, `A senha deve conter no mínimo 6 caracteres`),
     password_confirmation: z
       .string()
-      .nonempty('A confirmação de senha é obrigatória')
-      .min(6, 'A senha deve conter no mínimo 6 caracteres'),
+      .nonempty(`A confirmação de senha é obrigatória`)
+      .min(6, `A senha deve conter no mínimo 6 caracteres`),
   })
   .refine((data) => data.password === data.password_confirmation, {
-    message: 'As senhas não conferem',
-    path: ['password_confirmation'],
+    message: `As senhas não conferem`,
+    path: [`password_confirmation`],
   })
 
 type signUpInput = z.input<typeof signUpSchema>
@@ -44,7 +44,7 @@ export const SignUp = () => {
   })
   const toast = useToast()
 
-  const [emailError, setEmailError] = React.useState('')
+  const [emailError, setEmailError] = React.useState(``)
   const [isLoading, setIsLoading] = React.useState(false)
 
   const onHandleSingUp = async (data: signUpOutput) => {
@@ -54,15 +54,15 @@ export const SignUp = () => {
     if (response.status === 409) {
       setIsLoading(false)
 
-      return setEmailError('Email já cadastrado')
+      return setEmailError(`Email já cadastrado`)
     } else {
-      setEmailError('')
+      setEmailError(``)
     }
 
     toast.show({
-      placement: 'top',
+      placement: `top`,
       render: () => (
-        <VStack space={4} alignItems="center" bg={'success.500'} p={4} rounded={8}>
+        <VStack space={4} alignItems="center" bg={`success.500`} p={4} rounded={8}>
           <Text color="white" fontWeight="bold">
             Usuário cadastrado com sucesso!
           </Text>
@@ -70,22 +70,22 @@ export const SignUp = () => {
       ),
     })
 
-    navigation.navigate('signIn')
+    navigation.navigate(`signIn`)
 
     setIsLoading(false)
   }
 
   return (
-    <VStack flex={1} bg={'muted.900'} pt={10} px={4}>
+    <VStack flex={1} bg={`muted.900`} pt={10} px={4}>
       <Pressable onPress={navigation.goBack}>
         <CaretLeft size={32} color="white" weight="regular" />
       </Pressable>
       <Center flex={1}>
-        <VStack width={'full'} space={10}>
+        <VStack width={`full`} space={10}>
           <Center>
             <Title>Crie sua conta</Title>
           </Center>
-          <VStack width={'full'} space={4}>
+          <VStack width={`full`} space={4}>
             <Controller
               control={control}
               name="name"
@@ -106,7 +106,7 @@ export const SignUp = () => {
                   label="Email"
                   errorMessage={errors.email?.message || emailError}
                   onChangeText={onChange}
-                  onChange={() => setEmailError('')}
+                  onChange={() => setEmailError(``)}
                   keyboardType="email-address"
                 />
               )}

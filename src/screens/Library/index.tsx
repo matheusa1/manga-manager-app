@@ -21,14 +21,12 @@ export const Library = () => {
     console.log(`search ${search}`)
   }
 
-  const onHandleClick = () => {
-    console.log(`click`)
-  }
-
   const getData = useCallback(async () => {
-    const mangas = await getUserMangas(userData.token, userData.user.id)
-    setMangas(mangas)
-    console.log(mangas)
+    setRefreshing(true)
+    await getUserMangas(userData.token, userData.user.id).then((response) => {
+      setRefreshing(false)
+      setMangas(response)
+    })
   }, [])
 
   useEffect(() => {
