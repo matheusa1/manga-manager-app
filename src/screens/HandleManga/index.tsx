@@ -23,6 +23,7 @@ import { z } from 'zod'
 import { getMangaResponseType } from '../../@types/GetMangasTypes'
 import { Button } from '../../components/Button'
 import { Checkbox } from '../../components/Checkbox'
+import { useManga } from '../../context/MangaContext'
 import { useAuth } from '../../context/UserContext'
 import { updateMangaQuantity, updateMangaVolumesOwned } from '../../service/api'
 
@@ -39,6 +40,7 @@ export const HandleManga = () => {
   const manga = param
 
   const { userData } = useAuth()
+  const { updateUserMangas } = useManga()
 
   const navigation = useNavigation()
 
@@ -70,6 +72,8 @@ export const HandleManga = () => {
     setQuantity(Number(data.quantity))
     setIsChangeChapterLoading(false)
     setIsModalOpen(false)
+
+    updateUserMangas(userData.token, userData.user.id)
   }
 
   const onCheckboxClick = (item: number) => {
@@ -101,6 +105,8 @@ export const HandleManga = () => {
         </VStack>
       ),
     })
+
+    updateUserMangas(userData.token, userData.user.id)
   }
 
   return (
