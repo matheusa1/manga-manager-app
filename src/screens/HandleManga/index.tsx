@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigation, useRoute } from '@react-navigation/native'
 import {
+  AlertDialog,
   Center,
   FormControl,
   HStack,
@@ -8,7 +9,7 @@ import {
   IconButton,
   Image,
   Input,
-  Button as NButoon,
+  Button as NButton,
   ScrollView,
   Text,
   Toast,
@@ -16,7 +17,7 @@ import {
 } from 'native-base'
 import { Modal } from 'native-base'
 import { CaretLeft } from 'phosphor-react-native'
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { z } from 'zod'
 
@@ -25,13 +26,18 @@ import { Button } from '../../components/Button'
 import { Checkbox } from '../../components/Checkbox'
 import { useManga } from '../../context/MangaContext'
 import { useAuth } from '../../context/UserContext'
-import { updateMangaQuantity, updateMangaVolumesOwned } from '../../service/api'
+import { removeManga, updateMangaQuantity, updateMangaVolumesOwned } from '../../service/api'
 
 const ModalSchema = z.object({
-  quantity: z.string().min(1, `Campo obrigatório`),
+  quantity: z
+    .string()
+    .min(1, `Campo obrigatório`)
+    .refine((value) => Number(value) > 0, {
+      message: `Quantidade deve ser maior que 0`,
+    })
+    .transform((value) => Number(value)),
 })
 
-type ModalInput = z.input<typeof ModalSchema>
 type ModalOutput = z.output<typeof ModalSchema>
 
 export const HandleManga = () => {
@@ -48,7 +54,7 @@ export const HandleManga = () => {
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm<ModalInput>({
+  } = useForm<ModalOutput>({
     resolver: zodResolver(ModalSchema),
   })
 
@@ -58,6 +64,24 @@ export const HandleManga = () => {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isSaveLoading, setIsSaveLoading] = useState(false)
   const [isChangeChapterLoading, setIsChangeChapterLoading] = useState(false)
+  const [isDeleteLoading, setIsDeleteLoading] = useState(false)
+
+  const [isAlertOpen, setIsAlertOpen] = useState(false)
+  const cancelRef = useRef(null)
+
+  const onHandleRemove = async () => {
+    setIsDeleteLoading(true)
+    const res = await removeManga(userData.token, userData.user.id, manga.myAnimeListID)
+
+    console.log(res, manga.MangaID)
+
+    updateUserMangas(userData.token, userData.user.id)
+
+    setIsDeleteLoading(false)
+    setIsAlertOpen(false)
+    updateUserMangas(userData.token, userData.user.id)
+    navigation.goBack()
+  }
 
   const onSubmit = async (data: ModalOutput) => {
     console.log(data)
@@ -66,10 +90,10 @@ export const HandleManga = () => {
       userData.token,
       userData.user.id,
       manga.MangaID,
-      Number(data.quantity),
+      data.quantity,
     )
     console.log(response)
-    setQuantity(Number(data.quantity))
+    setQuantity(data.quantity)
     setIsChangeChapterLoading(false)
     setIsModalOpen(false)
 
@@ -131,16 +155,21 @@ export const HandleManga = () => {
       </VStack>
       <ScrollView h={`1`}>
         <VStack flex={1} p={4} space={4}>
-          <VStack alignItems={`center`} space={2}>
+          <VStack alignItems={`center`} space={4}>
             <Heading color={`white`}>{manga.title}</Heading>
-            <NButoon bg={`success.600`} onPress={() => setIsModalOpen(true)}>
-              <Text color={`white`} fontSize={`xs`}>
-                Mudar quantidade de capítulos
-              </Text>
-            </NButoon>
+            <HStack w={`full`} justifyContent={`space-between`} px={4}>
+              <NButton bg={`success.600`} onPress={() => setIsModalOpen(true)}>
+                <Text color={`white`} fontSize={`xs`}>
+                  Mudar quantidade de capítulos
+                </Text>
+              </NButton>
+              <NButton bg={`danger.500`} onPress={() => setIsAlertOpen(true)}>
+                Deletar manga
+              </NButton>
+            </HStack>
           </VStack>
 
-          {manga.volumes === -1 ? (
+          {quantity === -1 ? (
             <Center>
               <Text color={`white`}>Quantidade de capítulos não informada</Text>
             </Center>
@@ -207,6 +236,28 @@ export const HandleManga = () => {
           onPress={navigation.goBack}
         ></IconButton>
       </VStack>
+      <AlertDialog
+        isOpen={isAlertOpen}
+        leastDestructiveRef={cancelRef}
+        onClose={() => setIsAlertOpen(false)}
+      >
+        <AlertDialog.Content>
+          <AlertDialog.Header fontSize="lg" fontWeight="bold">
+            Remover da biblioteca
+          </AlertDialog.Header>
+          <AlertDialog.Body>
+            Tem certeza que deseja remover esse mangá da sua biblioteca?
+          </AlertDialog.Body>
+          <AlertDialog.Footer>
+            <NButton ref={cancelRef} onPress={() => setIsAlertOpen(false)}>
+              Cancelar
+            </NButton>
+            <NButton colorScheme="red" onPress={onHandleRemove} ml={3} isLoading={isDeleteLoading}>
+              Remover
+            </NButton>
+          </AlertDialog.Footer>
+        </AlertDialog.Content>
+      </AlertDialog>
     </VStack>
   )
 }

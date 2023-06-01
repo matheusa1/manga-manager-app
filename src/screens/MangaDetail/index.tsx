@@ -1,5 +1,15 @@
 import { useNavigation } from '@react-navigation/native'
-import { Button, HStack, Heading, IconButton, Image, ScrollView, Text, VStack } from 'native-base'
+import {
+  Button,
+  HStack,
+  Heading,
+  IconButton,
+  Image,
+  ScrollView,
+  Text,
+  VStack,
+  useToast,
+} from 'native-base'
 import { AlertDialog } from 'native-base'
 import { CaretLeft } from 'phosphor-react-native'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
@@ -24,6 +34,8 @@ export const MangaDetail = () => {
   const [isAlertOpen, setIsAlertOpen] = useState(false)
   const cancelRef = useRef(null)
   const navigation = useNavigation()
+
+  const Toast = useToast()
 
   const id = 44347
   const manga = {
@@ -64,6 +76,17 @@ export const MangaDetail = () => {
 
     setMangaAdded(false)
     setIsAlertOpen(false)
+
+    Toast.show({
+      placement: `top`,
+      render: () => (
+        <VStack space={4} alignItems="center" bg={`danger.500`} p={4} rounded={8}>
+          <Text color="white" fontWeight="bold">
+            Removido com sucesso!
+          </Text>
+        </VStack>
+      ),
+    })
   }
 
   const onHandleAdd = async () => {
@@ -80,6 +103,17 @@ export const MangaDetail = () => {
     updateUserMangas(userData.token, userData.user.id)
 
     setIsLoading(false)
+
+    Toast.show({
+      placement: `top`,
+      render: () => (
+        <VStack space={4} alignItems="center" bg={`success.500`} p={4} rounded={8}>
+          <Text color="white" fontWeight="bold">
+            Adicionado com sucesso!
+          </Text>
+        </VStack>
+      ),
+    })
   }
 
   const mangaAlreadyAdded = useCallback(async () => {

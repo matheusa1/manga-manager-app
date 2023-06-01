@@ -11,6 +11,7 @@ export declare global {
       // mangaDetail: { mangaId: number };
       mangaDetail: undefined;
       handleManga: getMangaResponseType
+      profile: undefined
     }
   }
 }

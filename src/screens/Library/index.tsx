@@ -1,31 +1,17 @@
 import { useNavigation } from '@react-navigation/native'
-import { HStack, Pressable, ScrollView, Text, VStack } from 'native-base'
+import { Center, HStack, Pressable, ScrollView, Text, VStack } from 'native-base'
 import React, { useCallback, useEffect, useState } from 'react'
-import { RefreshControl } from 'react-native'
+import { Image, RefreshControl } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
-import { getMangaResponseType } from '../../@types/GetMangasTypes'
+import ufo from '../../assets/ufo.png'
 import { CardLibrary } from '../../components/CardLibrary'
-import { Input } from '../../components/Input'
 import { useManga } from '../../context/MangaContext'
-import { useAuth } from '../../context/UserContext'
 
 export const Library = () => {
   const { mangaData } = useManga()
   const navigation = useNavigation()
-  const [search, setSearch] = useState(``)
-  const [filteredMangas, setFilteredMangas] = useState<getMangaResponseType[]>([])
   const [refreshing, setRefreshing] = useState(false)
-  const { userData } = useAuth()
-
-  const onHandleSearch = () => {
-    console.log(`search ${search}`)
-    const filtered = mangaData.mangas.filter((manga) => {
-      return manga.title.toLowerCase().includes(search.toLowerCase())
-    })
-
-    setFilteredMangas(filtered)
-  }
 
   const getData = useCallback(async () => {
     setRefreshing(true)
@@ -34,29 +20,21 @@ export const Library = () => {
 
   useEffect(() => {
     getData()
-  }, [getData, mangaData])
-
-  console.log({ Teste: mangaData })
+  }, [mangaData])
 
   return (
     <VStack bg={`muted.900`} flex={1}>
       <SafeAreaView style={{ flex: 1 }}>
-        <VStack px={4}>
-          <Input
-            placeholder="Pesquise um manga"
-            search
-            onChangeText={(e) => setSearch(e)}
-            onSearch={onHandleSearch}
-          />
-          <ScrollView
-            mt={4}
-            mb={16}
-            minH={`full`}
-            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={getData} />}
-          >
-            <HStack maxW={`full`} w={`full`} flexWrap={`wrap`}>
-              {mangaData.mangas.length > 0 ? (
-                filteredMangas.map((manga) => {
+        <VStack px={4} flex={1}>
+          {mangaData.mangas.length > 0 ? (
+            <ScrollView
+              mt={4}
+              mb={16}
+              minH={`full`}
+              refreshControl={<RefreshControl refreshing={refreshing} onRefresh={getData} />}
+            >
+              <HStack maxW={`full`} w={`full`} flexWrap={`wrap`}>
+                {mangaData.mangas.map((manga) => {
                   return (
                     <Pressable
                       onPress={() => navigation.navigate(`handleManga`, manga)}
@@ -76,12 +54,25 @@ export const Library = () => {
                       <CardLibrary title={manga.title} image={manga.image_url} />
                     </Pressable>
                   )
-                })
-              ) : (
-                <Text color={`white`}>Carregando</Text>
-              )}
-            </HStack>
-          </ScrollView>
+                })}
+              </HStack>
+            </ScrollView>
+          ) : (
+            <VStack flex={1}>
+              <Center flex={1}>
+                <Center w={20} h={20}>
+                  <Image
+                    source={ufo}
+                    style={{ width: `100%`, height: `100%` }}
+                    resizeMode="cover"
+                  />
+                </Center>
+                <Text color={`white`} mt={8}>
+                  Nenhum manga achado...
+                </Text>
+              </Center>
+            </VStack>
+          )}
         </VStack>
       </SafeAreaView>
     </VStack>

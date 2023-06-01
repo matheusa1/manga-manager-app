@@ -21,6 +21,7 @@ const initialData: userContextType = {
 type contextType = {
   userData: userContextType
   setUserData: Dispatch<SetStateAction<userContextType>>
+  resetContext: () => void
 }
 
 const Context = createContext({} as contextType)
@@ -28,7 +29,13 @@ const Context = createContext({} as contextType)
 export const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
   const [userData, setUserData] = useState(initialData)
 
-  return <Context.Provider value={{ userData, setUserData }}>{children}</Context.Provider>
+  const resetContext = () => {
+    setUserData(initialData)
+  }
+
+  return (
+    <Context.Provider value={{ userData, setUserData, resetContext }}>{children}</Context.Provider>
+  )
 }
 
 export const useAuth = () => {
@@ -41,5 +48,6 @@ export const useAuth = () => {
   return {
     userData: context.userData,
     setUserData: context.setUserData,
+    resetUserContext: context.resetContext,
   }
 }

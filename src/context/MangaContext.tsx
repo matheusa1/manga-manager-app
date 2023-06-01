@@ -14,6 +14,7 @@ const initialData: MangaContextType = {
 type contextType = {
   mangaData: MangaContextType
   getManga: (token: string, UserId: number) => void
+  resetMangaContext: () => void
 }
 
 const Context = createContext({} as contextType)
@@ -23,12 +24,19 @@ export const MangaContextProvider = ({ children }: { children: React.ReactNode }
 
   const getManga = async (token: string, UserId: number) => {
     const response = await getUserMangas(token, UserId)
-    console.log(response)
 
     setMangaData({ mangas: response })
   }
 
-  return <Context.Provider value={{ mangaData, getManga }}>{children}</Context.Provider>
+  const resetMangaContext = () => {
+    setMangaData(initialData)
+  }
+
+  return (
+    <Context.Provider value={{ mangaData, getManga, resetMangaContext }}>
+      {children}
+    </Context.Provider>
+  )
 }
 
 export const useManga = () => {
@@ -41,5 +49,6 @@ export const useManga = () => {
   return {
     mangaData: context.mangaData,
     updateUserMangas: context.getManga,
+    resetMangaContext: context.resetMangaContext,
   }
 }
