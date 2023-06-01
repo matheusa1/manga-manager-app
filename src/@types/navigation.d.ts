@@ -8,8 +8,7 @@ export declare global {
       search: undefined;
       library: undefined;
       tabs: undefined;
-      // mangaDetail: { mangaId: number };
-      mangaDetail: undefined;
+      mangaDetail: { mangaId: number };
       handleManga: getMangaResponseType
       profile: undefined
     }

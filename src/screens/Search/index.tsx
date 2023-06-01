@@ -1,6 +1,6 @@
 import { useNavigation } from '@react-navigation/native'
 import axios from 'axios'
-import { Box, Button, FlatList, Skeleton, VStack } from 'native-base'
+import { Box, FlatList, Skeleton, VStack } from 'native-base'
 import React, { useCallback, useEffect, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
@@ -21,7 +21,7 @@ export const Search = () => {
         ? `https://myanimelist.p.rapidapi.com/manga/search/${search}/10`
         : `https://myanimelist.p.rapidapi.com/manga/top/manga`,
       headers: {
-        'X-RapidAPI-Key': `6b9a0e0155mshc50e632587e1934p184af4jsn9db6ad7f95d5`,
+        'X-RapidAPI-Key': `6d05fc4799mshcfe4d55b2517b11p107705jsn08a5c9f43824`,
         'X-RapidAPI-Host': `myanimelist.p.rapidapi.com`,
       },
     }
@@ -40,8 +40,8 @@ export const Search = () => {
     getData(search)
   }
 
-  const onHandleClick = () => {
-    navigation.navigate(`mangaDetail`)
+  const onHandleClick = (id: number) => {
+    navigation.navigate(`mangaDetail`, { mangaId: id })
   }
 
   useEffect(() => {
@@ -59,7 +59,6 @@ export const Search = () => {
             onSearch={onHandleSearch}
           />
           <Box w={`full`} mt={8}>
-            <Button onPress={onHandleClick}>MASd</Button>
             {loading ? (
               <FlatList
                 data={mangas}
