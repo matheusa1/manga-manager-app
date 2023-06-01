@@ -4,6 +4,7 @@ import { AlertDialog } from 'native-base'
 import { CaretLeft } from 'phosphor-react-native'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 
+import { useManga } from '../../context/MangaContext'
 import { useAuth } from '../../context/UserContext'
 import { addMangaToUser, getUserMangas, removeManga } from '../../service/api'
 
@@ -17,6 +18,7 @@ export const MangaDetail = () => {
 
   // const id = param.mangaId
   const { userData } = useAuth()
+  const { updateUserMangas } = useManga()
   const [isLoading, setIsLoading] = useState(false)
   const [mangaAdded, setMangaAdded] = useState(false)
   const [isAlertOpen, setIsAlertOpen] = useState(false)
@@ -56,8 +58,9 @@ export const MangaDetail = () => {
   }
 
   const onHandleRemove = async () => {
-    const response = await removeManga(userData.token, userData.user.id, id)
-    console.log({ response })
+    await removeManga(userData.token, userData.user.id, id)
+
+    updateUserMangas(userData.token, userData.user.id)
 
     setMangaAdded(false)
     setIsAlertOpen(false)
@@ -66,15 +69,15 @@ export const MangaDetail = () => {
   const onHandleAdd = async () => {
     setIsLoading(true)
 
-    const response = await addMangaToUser(userData.token, userData.user.id, {
+    await addMangaToUser(userData.token, userData.user.id, {
       title: manga.title_ov,
       image_url: manga.picture_url,
       myAnimeListID: id,
       volumes: manga.information.volumes === `Unknown` ? -1 : Number(manga.information.volumes),
     })
 
-    console.log({ Teste: response })
     setMangaAdded(true)
+    updateUserMangas(userData.token, userData.user.id)
 
     setIsLoading(false)
   }

@@ -1,6 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigation } from '@react-navigation/native'
-import axios from 'axios'
 import { Center, HStack, Pressable, Text, VStack } from 'native-base'
 import React from 'react'
 import { Controller, useForm } from 'react-hook-form'
@@ -9,6 +8,7 @@ import { z } from 'zod'
 import { Button } from '../../components/Button'
 import { Input } from '../../components/Input'
 import { Title } from '../../components/Title'
+import { useManga } from '../../context/MangaContext'
 import { useAuth } from '../../context/UserContext'
 import { loginUser } from '../../service/api'
 
@@ -33,6 +33,7 @@ export const SignIn = () => {
   })
   const navigation = useNavigation()
   const { setUserData } = useAuth()
+  const { updateUserMangas } = useManga()
 
   const [passwordError, setPasswordError] = React.useState(``)
   const [emailError, setEmailError] = React.useState(``)
@@ -67,7 +68,7 @@ export const SignIn = () => {
       user: response.user,
     })
 
-    axios.defaults.headers.common[`Authorization`] = `Bearer ${response.token}`
+    updateUserMangas(response.token, response.user.id)
 
     setIsLoading(false)
 

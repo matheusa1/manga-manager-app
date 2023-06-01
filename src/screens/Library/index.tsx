@@ -7,31 +7,36 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { getMangaResponseType } from '../../@types/GetMangasTypes'
 import { CardLibrary } from '../../components/CardLibrary'
 import { Input } from '../../components/Input'
+import { useManga } from '../../context/MangaContext'
 import { useAuth } from '../../context/UserContext'
-import { getUserMangas } from '../../service/api'
 
 export const Library = () => {
+  const { mangaData } = useManga()
   const navigation = useNavigation()
   const [search, setSearch] = useState(``)
-  const [mangas, setMangas] = useState<getMangaResponseType[]>([])
+  const [filteredMangas, setFilteredMangas] = useState<getMangaResponseType[]>([])
   const [refreshing, setRefreshing] = useState(false)
   const { userData } = useAuth()
 
   const onHandleSearch = () => {
     console.log(`search ${search}`)
+    const filtered = mangaData.mangas.filter((manga) => {
+      return manga.title.toLowerCase().includes(search.toLowerCase())
+    })
+
+    setFilteredMangas(filtered)
   }
 
   const getData = useCallback(async () => {
     setRefreshing(true)
-    await getUserMangas(userData.token, userData.user.id).then((response) => {
-      setRefreshing(false)
-      setMangas(response)
-    })
+    setRefreshing(false)
   }, [])
 
   useEffect(() => {
     getData()
-  }, [getData])
+  }, [getData, mangaData])
+
+  console.log({ Teste: mangaData })
 
   return (
     <VStack bg={`muted.900`} flex={1}>
@@ -50,8 +55,8 @@ export const Library = () => {
             refreshControl={<RefreshControl refreshing={refreshing} onRefresh={getData} />}
           >
             <HStack maxW={`full`} w={`full`} flexWrap={`wrap`}>
-              {mangas.length > 0 ? (
-                mangas.map((manga) => {
+              {mangaData.mangas.length > 0 ? (
+                filteredMangas.map((manga) => {
                   return (
                     <Pressable
                       onPress={() => navigation.navigate(`handleManga`, manga)}

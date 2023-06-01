@@ -10,11 +10,11 @@ type userContextType = {
 }
 
 const initialData: userContextType = {
-  token: '',
+  token: ``,
   user: {
     id: 0,
-    name: '',
-    email: '',
+    name: ``,
+    email: ``,
   },
 }
 
@@ -35,7 +35,7 @@ export const useAuth = () => {
   const context = useContext(Context)
 
   if (!context) {
-    throw new Error('useAmount must be used within a AmountContextProvider')
+    throw new Error(`useAmount must be used within a AmountContextProvider`)
   }
 
   return {
