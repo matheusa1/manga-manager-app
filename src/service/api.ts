@@ -3,6 +3,7 @@ import axios from 'axios'
 import { GetMangaDetailsJikan } from '../@types/JikanMangaDetailsResponse'
 import { JikanRecomendationsResponse } from '../@types/JikanRecomendationsResponse'
 import { JikanSearchResponseType } from '../@types/JikanSearchResponse'
+import { UpdateUserDataType } from '../@types/UpdateUserData'
 import { signInOutput } from '../screens/SignIn'
 import { signUpOutput } from '../screens/SignUp'
 
@@ -188,6 +189,34 @@ export const getMangaDetailOnJikan = async (id: number) => {
     const response = await axios.get<GetMangaDetailsJikan>(
       `https://api.jikan.moe/v4/manga/${id}/full`,
     )
+
+    return { error: false, response: response.data }
+  } catch (error) {
+    return { error: true, response: undefined }
+  }
+}
+
+export const UpdateUserData = async (
+  token: string,
+  userID: number,
+  name: string,
+  password: string,
+) => {
+  try {
+    const response = await api.put<UpdateUserDataType>(
+      `user/${userID}`,
+      {
+        name: name,
+        password: password,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    )
+
+    console.log(response.data)
 
     return { error: false, response: response.data }
   } catch (error) {

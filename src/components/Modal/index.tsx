@@ -4,6 +4,8 @@ import React, { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { z } from 'zod'
 
+import { useAuth } from '../../context/UserContext'
+import { UpdateUserData } from '../../service/api'
 import { Button } from '../Button'
 import { Input } from '../Input'
 
@@ -34,11 +36,20 @@ export const Modal = ({ isOpen, onClose }: ModalProps) => {
     resolver: zodResolver(editProfileSchema),
   })
 
+  const { userData, setUserData } = useAuth()
+
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
-  const onSubmit = (data: editProfileSchemaType) => {
+  const onSubmit = async (data: editProfileSchemaType) => {
     setIsLoading(true)
-    console.log(data)
+    const res = await UpdateUserData(userData.token, userData.user.id, data.name, data.password)
+
+    console.log(res)
+    res.response &&
+      setUserData({
+        token: res.response?.token,
+        user: res.response?.user,
+      })
     setIsLoading(false)
   }
 
