@@ -1,5 +1,4 @@
 import { useNavigation, useRoute } from '@react-navigation/native'
-import axios from 'axios'
 import {
   Button,
   Center,
@@ -17,10 +16,15 @@ import { CaretLeft } from 'phosphor-react-native'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { ActivityIndicator } from 'react-native'
 
-import { MangaDetailType } from '../../@types/getMangaType'
+import { GetMangaDetailsJikanData } from '../../@types/JikanMangaDetailsResponse'
 import { useManga } from '../../context/MangaContext'
 import { useAuth } from '../../context/UserContext'
-import { addMangaToUser, getUserMangas, removeManga } from '../../service/api'
+import {
+  addMangaToUser,
+  getMangaDetailOnJikan,
+  getUserMangas,
+  removeManga,
+} from '../../service/api'
 
 type MangaDetailProps = {
   mangaId: number
@@ -36,26 +40,16 @@ export const MangaDetail = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [mangaAdded, setMangaAdded] = useState(false)
   const [isAlertOpen, setIsAlertOpen] = useState(false)
-  const [manga, setManga] = useState<MangaDetailType>()
+  const [manga, setManga] = useState<GetMangaDetailsJikanData>()
   const cancelRef = useRef(null)
   const navigation = useNavigation()
 
   const Toast = useToast()
 
   const getMangaDetail = useCallback(async () => {
-    const options = {
-      method: `GET`,
-      url: `https://myanimelist.p.rapidapi.com/manga/${id}`,
-      headers: {
-        'X-RapidAPI-Key': `6d05fc4799mshcfe4d55b2517b11p107705jsn08a5c9f43824`,
-        'X-RapidAPI-Host': `myanimelist.p.rapidapi.com`,
-      },
-    }
-
     try {
-      const response = await axios.request(options)
-      console.log(response.data)
-      setManga(response.data)
+      const res = await getMangaDetailOnJikan(id)
+      setManga(res.response?.data)
     } catch (error) {
       console.error(error)
     }
@@ -87,10 +81,10 @@ export const MangaDetail = () => {
     if (!manga) return
 
     await addMangaToUser(userData.token, userData.user.id, {
-      title: manga.title_ov,
-      image_url: manga.picture_url,
+      title: manga.title,
+      image_url: manga.images.jpg.large_image_url,
       myAnimeListID: id,
-      volumes: manga.information.volumes === `Unknown` ? -1 : Number(manga.information.volumes),
+      volumes: manga.volumes === null ? -1 : manga.volumes,
     })
 
     setMangaAdded(true)
@@ -134,7 +128,7 @@ export const MangaDetail = () => {
               resizeMode="cover"
               w="full"
               h="full"
-              source={{ uri: manga?.picture_url }}
+              source={{ uri: manga.images.jpg.large_image_url }}
               alt={`image`}
               zIndex={-2}
             />
@@ -149,19 +143,19 @@ export const MangaDetail = () => {
           </VStack>
           <ScrollView h={`1`}>
             <VStack flex={1} p={4} space={4}>
-              <HStack alignItems={`center`} justifyContent={`space-between`}>
-                <Heading color={`white`}>{manga?.title_ov}</Heading>
+              <VStack justifyContent={`space-between`}>
+                <Heading color={`white`}>{manga.title}</Heading>
                 <Text color={`white`} fontSize={`xs`}>
-                  {manga?.information.published}
+                  {manga.published.string}
                 </Text>
-              </HStack>
+              </VStack>
               <Text color={`white`}>{manga?.synopsis}</Text>
               <HStack alignItems={`center`} space={4}>
                 <Text color={`white`} fontSize={`lg`}>
                   Status:
                 </Text>
                 <Text color={`emerald.400`} fontSize={`xs`}>
-                  {manga?.information.status}
+                  {manga.status}
                 </Text>
               </HStack>
               <HStack alignItems={`center`} space={4}>
@@ -169,7 +163,7 @@ export const MangaDetail = () => {
                   Author(s):
                 </Text>
                 <Text color={`emerald.400`} fontSize={`xs`}>
-                  {manga?.information?.authors?.map((author: any) => author.name).join(`, `)}
+                  {manga.authors?.map((author) => author.name).join(`, `)}
                 </Text>
               </HStack>
               <HStack alignItems={`center`} space={4}>
@@ -177,7 +171,7 @@ export const MangaDetail = () => {
                   Volumes:
                 </Text>
                 <Text color={`emerald.400`} fontSize={`xs`}>
-                  {manga?.information.volumes}
+                  {manga.volumes === null ? `Desconhecido` : manga.volumes}
                 </Text>
               </HStack>
               <HStack>

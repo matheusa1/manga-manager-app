@@ -5,11 +5,10 @@ import { GestureResponderEvent } from 'react-native'
 type CardProps = {
   title: string
   image: string
-  description: string
   onPress: (event: GestureResponderEvent) => void
 }
 
-export const Card = ({ image, title, description, onPress }: CardProps) => {
+export const Card = ({ image, title, onPress }: CardProps) => {
   return (
     <Pressable
       _pressed={{
@@ -34,9 +33,6 @@ export const Card = ({ image, title, description, onPress }: CardProps) => {
             <Heading color={`white`} fontSize={20}>
               {title}
             </Heading>
-            <Text color={`white`} fontSize={11}>
-              {description}
-            </Text>
           </VStack>
 
           <HStack>

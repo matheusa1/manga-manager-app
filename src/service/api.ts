@@ -1,5 +1,8 @@
 import axios from 'axios'
 
+import { GetMangaDetailsJikan } from '../@types/JikanMangaDetailsResponse'
+import { JikanRecomendationsResponse } from '../@types/JikanRecomendationsResponse'
+import { JikanSearchResponseType } from '../@types/JikanSearchResponse'
 import { signInOutput } from '../screens/SignIn'
 import { signUpOutput } from '../screens/SignUp'
 
@@ -145,5 +148,49 @@ export const updateMangaVolumesOwned = async (
     return response.data
   } catch (error: any) {
     return error.response.data
+  }
+}
+
+export const getMangasBySearchOnJikan = async (q: string) => {
+  try {
+    const response = await axios.get<JikanSearchResponseType>(`https://api.jikan.moe/v4/manga`, {
+      params: {
+        type: `manga`,
+        q,
+      },
+    })
+
+    return { error: false, response: response.data }
+  } catch (error) {
+    return { error: true, response: undefined }
+  }
+}
+
+export const getTopMangasOnJikan = async (page: number) => {
+  try {
+    const response = await axios.get<JikanRecomendationsResponse>(
+      `https://api.jikan.moe/v4/recommendations/manga`,
+      {
+        params: {
+          page,
+        },
+      },
+    )
+
+    return { error: false, response: response.data }
+  } catch (error) {
+    return { error: true, response: undefined }
+  }
+}
+
+export const getMangaDetailOnJikan = async (id: number) => {
+  try {
+    const response = await axios.get<GetMangaDetailsJikan>(
+      `https://api.jikan.moe/v4/manga/${id}/full`,
+    )
+
+    return { error: false, response: response.data }
+  } catch (error) {
+    return { error: true, response: undefined }
   }
 }
