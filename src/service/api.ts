@@ -223,3 +223,17 @@ export const UpdateUserData = async (
     return { error: true, response: undefined }
   }
 }
+
+export const DeleteUser = async (token: string, userID: number) => {
+  try {
+    const response = await api.delete(`user/${userID}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    return { error: false, response: response.data }
+  } catch (error) {
+    return { error: true, response: undefined }
+  }
+}

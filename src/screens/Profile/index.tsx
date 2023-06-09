@@ -1,5 +1,5 @@
 import { useNavigation } from '@react-navigation/native'
-import { Heading, VStack } from 'native-base'
+import { Heading, Text, VStack, useToast } from 'native-base'
 import React, { useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
@@ -8,6 +8,7 @@ import { Dialog } from '../../components/Dialog'
 import { Modal } from '../../components/Modal'
 import { useManga } from '../../context/MangaContext'
 import { useAuth } from '../../context/UserContext'
+import { DeleteUser } from '../../service/api'
 
 export const Profile = () => {
   const { resetUserContext, userData } = useAuth()
@@ -16,11 +17,40 @@ export const Profile = () => {
 
   const [isModalVisible, setIsModalVisible] = useState(false)
   const [isDialogVisible, setIsDialogVisible] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const Toast = useToast()
 
   const onHandleLogout = () => {
     resetUserContext()
     resetMangaContext()
     navigation.navigate(`signIn`)
+  }
+
+  const onHandleDeleteAccount = async () => {
+    setIsLoading(true)
+    const response = await DeleteUser(userData.token, userData.user.id)
+
+    if (response.error) {
+      setIsLoading(false)
+
+      return
+    }
+
+    resetUserContext()
+    resetMangaContext()
+    navigation.navigate(`signIn`)
+    setIsLoading(false)
+
+    Toast.show({
+      placement: `top`,
+      render: () => (
+        <VStack space={4} alignItems="center" bg={`danger.500`} p={4} rounded={8}>
+          <Text color="white" fontWeight="bold">
+            Conta deletada com sucesso!
+          </Text>
+        </VStack>
+      ),
+    })
   }
 
   return (
@@ -43,7 +73,12 @@ export const Profile = () => {
         </VStack>
       </SafeAreaView>
       <Modal isOpen={isModalVisible} onClose={() => setIsModalVisible(false)} />
-      <Dialog isOpen={isDialogVisible} onClose={() => setIsDialogVisible(false)} />
+      <Dialog
+        isLoading={isLoading}
+        isOpen={isDialogVisible}
+        onClose={() => setIsDialogVisible(false)}
+        onPress={onHandleDeleteAccount}
+      />
     </VStack>
   )
 }
