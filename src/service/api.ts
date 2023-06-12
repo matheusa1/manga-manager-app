@@ -8,7 +8,7 @@ import { signInOutput } from '../screens/SignIn'
 import { signUpOutput } from '../screens/SignUp'
 
 const api = axios.create({
-  baseURL: `https://manga-manager.fly.dev/`,
+  baseURL: `https://manga-manager.herokuapp.com/`,
 })
 
 export const registerUser = async (data: signUpOutput) => {
