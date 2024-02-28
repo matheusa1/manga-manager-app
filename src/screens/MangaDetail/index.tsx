@@ -16,12 +16,11 @@ import { CaretLeft } from 'phosphor-react-native'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { ActivityIndicator } from 'react-native'
 
-import { GetMangaDetailsJikanData } from '../../@types/JikanMangaDetailsResponse'
 import { useManga } from '../../context/MangaContext'
 import { useAuth } from '../../context/UserContext'
 import {
   addMangaToUser,
-  getMangaDetailOnJikan,
+  getMangaDetailOnMyAnimeList,
   getUserMangas,
   removeManga,
 } from '../../service/api'
@@ -40,7 +39,7 @@ export const MangaDetail = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [mangaAdded, setMangaAdded] = useState(false)
   const [isAlertOpen, setIsAlertOpen] = useState(false)
-  const [manga, setManga] = useState<GetMangaDetailsJikanData>()
+  const [manga, setManga] = useState<any>()
   const cancelRef = useRef(null)
   const navigation = useNavigation()
 
@@ -48,8 +47,8 @@ export const MangaDetail = () => {
 
   const getMangaDetail = useCallback(async () => {
     try {
-      const res = await getMangaDetailOnJikan(id)
-      setManga(res.response?.data)
+      const res = await getMangaDetailOnMyAnimeList(id)
+      setManga(res.response)
     } catch (error) {
       console.error(error)
     }
@@ -81,10 +80,10 @@ export const MangaDetail = () => {
     if (!manga) return
 
     await addMangaToUser(userData.token, userData.user.id, {
-      title: manga.title,
-      image_url: manga.images.jpg.large_image_url,
+      title: manga.title_ov,
+      image_url: manga.picture_url,
       myAnimeListID: id,
-      volumes: manga.volumes === null ? -1 : manga.volumes,
+      volumes: manga?.information?.volumes === null ? -1 : manga?.information?.volumes,
     })
 
     setMangaAdded(true)
@@ -106,6 +105,7 @@ export const MangaDetail = () => {
 
   const mangaAlreadyAdded = useCallback(async () => {
     const response = await getUserMangas(userData.token, userData.user.id)
+    console.log(response)
 
     const alreadyAdded = response?.find((manga: any) => manga.myAnimeListID === id)
 
@@ -128,7 +128,7 @@ export const MangaDetail = () => {
               resizeMode="cover"
               w="full"
               h="full"
-              source={{ uri: manga.images.jpg.large_image_url }}
+              source={{ uri: manga.picture_url }}
               alt={`image`}
               zIndex={-2}
             />
@@ -144,9 +144,9 @@ export const MangaDetail = () => {
           <ScrollView h={`1`}>
             <VStack flex={1} p={4} space={4}>
               <VStack justifyContent={`space-between`}>
-                <Heading color={`white`}>{manga.title}</Heading>
+                <Heading color={`white`}>{manga.title_ov}</Heading>
                 <Text color={`white`} fontSize={`xs`}>
-                  {manga.published.string}
+                  {manga.information?.published}
                 </Text>
               </VStack>
               <Text color={`white`}>{manga?.synopsis}</Text>
@@ -155,7 +155,7 @@ export const MangaDetail = () => {
                   Status:
                 </Text>
                 <Text color={`emerald.400`} fontSize={`xs`}>
-                  {manga.status}
+                  {manga.information?.status}
                 </Text>
               </HStack>
               <HStack alignItems={`center`} space={4}>
@@ -163,7 +163,7 @@ export const MangaDetail = () => {
                   Author(s):
                 </Text>
                 <Text color={`emerald.400`} fontSize={`xs`}>
-                  {manga.authors?.map((author) => author.name).join(`, `)}
+                  {manga.information?.authors?.map((author: any) => author.name)}
                 </Text>
               </HStack>
               <HStack alignItems={`center`} space={4}>
@@ -171,7 +171,7 @@ export const MangaDetail = () => {
                   Volumes:
                 </Text>
                 <Text color={`emerald.400`} fontSize={`xs`}>
-                  {manga.volumes === null ? `Desconhecido` : manga.volumes}
+                  {manga.information?.volumes ? manga.information.volumes : `Desconhecido`}
                 </Text>
               </HStack>
               <HStack>

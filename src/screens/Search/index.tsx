@@ -3,18 +3,16 @@ import { Box, FlatList, Skeleton, VStack } from 'native-base'
 import React, { useCallback, useEffect, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
-import { JikanRecomendationsResponseData } from '../../@types/JikanRecomendationsResponse'
-import { JikanSearchResponseDataType } from '../../@types/JikanSearchResponse'
 import { Card } from '../../components/Card'
 import { Input } from '../../components/Input'
-import { getMangasBySearchOnJikan, getTopMangasOnJikan } from '../../service/api'
+import { getMangasBySearchOnMyAnimeList, getTopMangasOnMyAnimeList } from '../../service/api'
 
 export const Search = () => {
   const navigation = useNavigation()
 
   const [search, setSearch] = useState(``)
-  const [mangas, setMangas] = useState<JikanRecomendationsResponseData[]>()
-  const [mangasSearched, setMangasSearched] = useState<JikanSearchResponseDataType[]>()
+  const [mangas, setMangas] = useState<any[]>()
+  const [mangasSearched, setMangasSearched] = useState<any[]>()
   const [loading, setLoading] = useState(false)
 
   const onHandleClick = (id: number) => {
@@ -29,15 +27,16 @@ export const Search = () => {
     setLoading(false)
 
     if (search) {
-      const res = await getMangasBySearchOnJikan(search)
-      setMangasSearched(res?.response?.data)
+      const res = await getMangasBySearchOnMyAnimeList(search)
+      setMangasSearched(res?.response)
     } else {
       if (mangas) {
         setMangasSearched(undefined)
         return setLoading(true)
       }
-      const res = await getTopMangasOnJikan(1)
-      setMangas(res?.response?.data)
+      const res = await getTopMangasOnMyAnimeList()
+
+      setMangas(res?.response)
     }
     setLoading(true)
   }, [])
@@ -62,12 +61,12 @@ export const Search = () => {
                 {mangasSearched ? (
                   <FlatList
                     data={mangasSearched}
-                    renderItem={({ item }: { item: JikanSearchResponseDataType }) => (
+                    renderItem={({ item }: { item: any }) => (
                       <VStack my={1}>
                         <Card
-                          onPress={() => onHandleClick(item.mal_id)}
+                          onPress={() => onHandleClick(item.myanimelist_id)}
                           title={item.title}
-                          image={item.images.jpg.large_image_url}
+                          image={item.picture_url}
                         />
                       </VStack>
                     )}
@@ -75,12 +74,12 @@ export const Search = () => {
                 ) : (
                   <FlatList
                     data={mangas}
-                    renderItem={({ item }: { item: JikanRecomendationsResponseData }) => (
+                    renderItem={({ item }: { item: any }) => (
                       <VStack my={1}>
                         <Card
-                          onPress={() => onHandleClick(item.entry[0].mal_id)}
-                          title={item.entry[0].title}
-                          image={item.entry[0].images.jpg.large_image_url}
+                          onPress={() => onHandleClick(item.myanimelist_id)}
+                          title={item.title}
+                          image={item.picture_url}
                         />
                       </VStack>
                     )}

@@ -1,8 +1,5 @@
 import axios from 'axios'
 
-import { GetMangaDetailsJikan } from '../@types/JikanMangaDetailsResponse'
-import { JikanRecomendationsResponse } from '../@types/JikanRecomendationsResponse'
-import { JikanSearchResponseType } from '../@types/JikanSearchResponse'
 import { UpdateUserDataType } from '../@types/UpdateUserData'
 import { signInOutput } from '../screens/SignIn'
 import { signUpOutput } from '../screens/SignUp'
@@ -28,6 +25,7 @@ export const registerUser = async (data: signUpOutput) => {
 }
 
 export const loginUser = async (data: signInOutput) => {
+  console.log(data)
   try {
     const response = await api.post(`auth/login`, {
       email: data.email,
@@ -36,10 +34,11 @@ export const loginUser = async (data: signInOutput) => {
 
     return response.data
   } catch (error: any) {
-    if (error.response.status === 401) {
+    console.log(error?.response?.status)
+    if (error?.response?.status === 401) {
       return { status: 401, error: `Senha incorreta` }
     }
-    if (error.response.status === 404) {
+    if (error?.response?.status === 404) {
       return { status: 404, error: `Email não cadastrado` }
     }
   }
@@ -152,12 +151,16 @@ export const updateMangaVolumesOwned = async (
   }
 }
 
-export const getMangasBySearchOnJikan = async (q: string) => {
+export const getMangasBySearchOnMyAnimeList = async (q: string) => {
   try {
-    const response = await axios.get<JikanSearchResponseType>(`https://api.jikan.moe/v4/manga`, {
+    const response = await axios.get(`https://myanimelist.p.rapidapi.com/v2/manga/search`, {
+      headers: {
+        'x-rapidapi-host': `myanimelist.p.rapidapi.com`,
+        'x-rapidapi-key': `725dc22296mshde9e71cfd1025dcp1e760fjsnd2b556cf72a2`,
+      },
       params: {
-        type: `manga`,
         q,
+        n: 50,
       },
     })
 
@@ -167,16 +170,14 @@ export const getMangasBySearchOnJikan = async (q: string) => {
   }
 }
 
-export const getTopMangasOnJikan = async (page: number) => {
+export const getTopMangasOnMyAnimeList = async () => {
   try {
-    const response = await axios.get<JikanRecomendationsResponse>(
-      `https://api.jikan.moe/v4/recommendations/manga`,
-      {
-        params: {
-          page,
-        },
+    const response = await axios.get(`https://myanimelist.p.rapidapi.com/manga/top/all`, {
+      headers: {
+        'x-rapidapi-host': `myanimelist.p.rapidapi.com`,
+        'x-rapidapi-key': `725dc22296mshde9e71cfd1025dcp1e760fjsnd2b556cf72a2`,
       },
-    )
+    })
 
     return { error: false, response: response.data }
   } catch (error) {
@@ -184,11 +185,14 @@ export const getTopMangasOnJikan = async (page: number) => {
   }
 }
 
-export const getMangaDetailOnJikan = async (id: number) => {
+export const getMangaDetailOnMyAnimeList = async (id: number) => {
   try {
-    const response = await axios.get<GetMangaDetailsJikan>(
-      `https://api.jikan.moe/v4/manga/${id}/full`,
-    )
+    const response = await axios.get(`https://myanimelist.p.rapidapi.com/manga/${id}`, {
+      headers: {
+        'x-rapidapi-host': `myanimelist.p.rapidapi.com`,
+        'x-rapidapi-key': `725dc22296mshde9e71cfd1025dcp1e760fjsnd2b556cf72a2`,
+      },
+    })
 
     return { error: false, response: response.data }
   } catch (error) {
